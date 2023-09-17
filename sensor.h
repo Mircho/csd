@@ -2,6 +2,7 @@
 
 #include "stdlib.h"
 #include "stdbool.h"
+#include "stdint.h"
 
 typedef struct observable_value observable_value_t;
 
