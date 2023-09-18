@@ -67,22 +67,22 @@ typedef struct filter_item_offset filter_item_offset_t;
 struct filter_item_offset
 {
   filter_item_t super;
-  double offset;
+  number_type offset;
 };
 
 typedef struct filter_item_skip filter_item_skip_t;
 struct filter_item_skip
 {
   filter_item_t super;
-  uint8_t skip;
+  uint16_t skip;
 };
 
 typedef struct filter_item_clamp filter_item_clamp_t;
 struct filter_item_clamp
 {
   filter_item_t super;
-  double min;
-  double max;
+  number_type min;
+  number_type max;
 };
 
 filter_ret_val_t filter_item_linear_fit_fn(filter_item_t *this, observable_number_t *var);
@@ -130,19 +130,25 @@ struct observable_value
 #define SET_OBSERVABLE_VAR(var_name, new_value) \
   var_name.value = new_value;
 
-#define OBSERVABLE_VALUE(var_name, initial_value) \
-  observable_value_t var_name = {                 \
-      .value = initial_value,                     \
-      .name = #var_name,                          \
-      .force_notify = false,                      \
-      .delta_thr = 0.0,                           \
-      .filters = NULL,                            \
-      .observers = NULL,                          \
-      .set = set_value,                           \
-      .notify = notify_observers,                 \
+// use gcc extension for deferred cleanup of type
+
+#define OBSERVABLE_VALUE(var_name, initial_value)                                 \
+  observable_value_t var_name __attribute__((__cleanup__(cleanup_observers))) = { \
+      .value = initial_value,                                                     \
+      .name = #var_name,                                                          \
+      .force_notify = false,                                                      \
+      .delta_thr = 0.0,                                                           \
+      .filters = NULL,                                                            \
+      .observers = NULL,                                                          \
+      .set = set_value,                                                           \
+      .notify = notify_observers,                                                 \
   }
 
 #define PROCESS_NEW_VALUE(var_name, var_value) \
+  var_name.set(&var_name, var_value)
+
+#define SET_AND_PROCESS_NEW_VALUE(var_name, var_value, new_value) \
+  var_value.value = new_value;                                    \
   var_name.set(&var_name, var_value)
 
 #define ADD_OBSERVER(var_name, observer) \
@@ -189,13 +195,13 @@ struct observable_value
   filter_name.accumulator_ = 0;                                            \
   filter_name.pass_first = pass_first_val;
 
-#define FILTER_LINEAR_FIT(filter_name, from_1, to_1, from_2, to_2) \
-  FILTER(filter_name, linear_fit);                                 \
-  filter_name.value_map[0][0] = from_1;                            \
-  filter_name.value_map[0][1] = to_1;                              \
-  filter_name.value_map[1][0] = from_2;                            \
-  filter_name.value_map[1][1] = to_2;                              \
-  filter_name.slope_ = ((float)to_1 - (float)to_2) / ((float)from_1 - (float)from_2);          \
+#define FILTER_LINEAR_FIT(filter_name, from_1, to_1, from_2, to_2)                    \
+  FILTER(filter_name, linear_fit);                                                    \
+  filter_name.value_map[0][0] = from_1;                                               \
+  filter_name.value_map[0][1] = to_1;                                                 \
+  filter_name.value_map[1][0] = from_2;                                               \
+  filter_name.value_map[1][1] = to_2;                                                 \
+  filter_name.slope_ = ((float)to_1 - (float)to_2) / ((float)from_1 - (float)from_2); \
   filter_name.intercept_ = (float)to_1 - filter_name.slope_ * (float)from_1;
 
 #define ADD_FILTER(var_name, filter) \

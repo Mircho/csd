@@ -1,4 +1,6 @@
 #include "stdio.h"
+#include "math.h"
+#include "assert.h"
 #include "sensor.h"
 
 void vo_1(observable_value_t *this) 
@@ -51,7 +53,7 @@ void test_generic(void) {
   SET_OBSERVABLE_VAR(my_var, 620);
   PROCESS_NEW_VALUE(pressure, my_var);
 
-  CLEANUP_OBSERVERS(pressure);
+  // CLEANUP_OBSERVERS(pressure);
 }
 
 void test_exp_m_avg(void) {
@@ -81,8 +83,9 @@ void test_exp_m_avg(void) {
   }
 
   printf("Result for EMA: %.4f\n", pressure_ema.value.value);
-
-  CLEANUP_OBSERVERS(pressure_ema);
+  const double expected = 577.5;
+  assert( fabs( pressure_ema.value.value - expected ) < 0.05 );
+  // CLEANUP_OBSERVERS(pressure_ema);
 }
 
 void test_avg(void) {
@@ -115,12 +118,13 @@ void test_avg(void) {
   }
 
   printf("Result for A: %.4f\n", pressure_a.value.value);
+  const double expected = 2000.0;
+  assert(fabs(pressure_a.value.value - expected) < 0.05);
 
-  CLEANUP_OBSERVERS(pressure_a);
+  // CLEANUP_OBSERVERS(pressure_a);
 }
 
 void test_linear_fit(void) {
-
   OBSERVABLE_VALUE(pressure_lf, 0);
   ADD_OBSERVER(pressure_lf, vo_1);
 
@@ -133,13 +137,23 @@ void test_linear_fit(void) {
   ADD_FILTER(pressure_lf, a_pressure_filter_c);
 
 
-  OBSERVABLE_NUMBER(a_var, 550);
+  OBSERVABLE_NUMBER(a_var, 0);
+
+  SET_AND_PROCESS_NEW_VALUE(pressure_lf, a_var, 550);
+
+  printf("Result for A: %.4f\n", pressure_lf.value.value);
+  const double expected_550 = 27.027027027027;
+  assert(fabs(pressure_lf.value.value - expected_550) < 0.05);
+
+  SET_AND_PROCESS_NEW_VALUE(pressure_lf, a_var, 617);
   PROCESS_NEW_VALUE(pressure_lf, a_var);
 
   printf("Result for A: %.4f\n", pressure_lf.value.value);
+  const double expected_617 = 63.2432432432432;
+  assert(fabs(pressure_lf.value.value - expected_617) < 0.05);
 
   // expected 27.778
-  CLEANUP_OBSERVERS(pressure_lf);
+  // CLEANUP_OBSERVERS(pressure_lf);
 }
 
 int main(void)
