@@ -149,14 +149,7 @@ struct observable_value
   }
 
 #define PROCESS_NEW_VALUE(var_name, var_value) \
-  var_name.set(&var_name, var_value)
-
-#define INGEST_NEW_VALUE(var_name, var_value) \
   var_name.process(&var_name, var_value)
-
-#define SET_AND_PROCESS_NEW_VALUE(var_name, var_value, new_value) \
-  var_value.value = new_value;                                    \
-  var_name.set(&var_name, var_value)
 
 #define ADD_OBSERVER(var_name, observer) \
   add_observer(&var_name, observer)

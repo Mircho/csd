@@ -14,16 +14,16 @@ void vo_2(observable_value_t *this)
 }
 
 void test_generic(void) {
-  OBSERVABLE_VALUE(pressure, 0);
+  OBSERVABLE_VALUE(pressure, 3.14);
 
   ADD_OBSERVER(pressure, vo_1);
   ADD_OBSERVER(pressure, vo_2);
 
+  // must print two notifications
   NOTIFY_OBSERVERS(pressure);
   REMOVE_OBSERVER(pressure, vo_1);
+  // must print one notification
   NOTIFY_OBSERVERS(pressure);
-  // REMOVE_OBSERVER(pressure, vo_2);
-  // NOTIFY_OBSERVERS(pressure);
 
   FILTER_CLAMP(clamp_pressure_adc, 500, 700);
   FILTER_OFFSET(offset_pressure, -30);
@@ -95,7 +95,7 @@ void test_avg(void) {
   ADD_FILTER(pressure_a, a_pressure_filter);
 
   for(size_t cnt = 0; cnt < (sizeof(test_values)/sizeof(test_values[0])); cnt++) {
-    INGEST_NEW_VALUE(pressure_a, test_values[cnt]);
+    PROCESS_NEW_VALUE(pressure_a, test_values[cnt]);
   }
 
   printf("Result for A: %.4f\n", pressure_a.value.value);
@@ -117,13 +117,13 @@ void test_linear_fit(void) {
   FILTER_CLAMP(a_pressure_filter_c, 0, 100);
   ADD_FILTER(pressure_lf, a_pressure_filter_c);
 
-  INGEST_NEW_VALUE(pressure_lf, 550);
+  PROCESS_NEW_VALUE(pressure_lf, 550);
 
   printf("Result for A: %.4f\n", pressure_lf.value.value);
   const double expected_550 = 27.027027027027;
   assert(fabs(pressure_lf.value.value - expected_550) < 0.05);
 
-  INGEST_NEW_VALUE(pressure_lf, 617);
+  PROCESS_NEW_VALUE(pressure_lf, 617);
 
   printf("Result for A: %.4f\n", pressure_lf.value.value);
   const double expected_617 = 63.2432432432432;

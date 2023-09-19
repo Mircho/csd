@@ -1,6 +1,10 @@
 ## Purpose
 
-C abstraction for sensor data filtering.
+This is used for a larger project where fast sampled adc data and pulse counters need to be filtered before processed.
+
+## Application
+
+Resulting application contains several tests.
 
 ## References
 
