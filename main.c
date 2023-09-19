@@ -33,25 +33,12 @@ void test_generic(void) {
   ADD_FILTER(pressure, clamp_pressure_adc);
   ADD_FILTER(pressure, offset_pressure);
 
-  OBSERVABLE_NUMBER(my_var, 0);
-
-  SET_OBSERVABLE_VAR(my_var, 200);
-  PROCESS_NEW_VALUE(pressure, my_var);
-
-  SET_OBSERVABLE_VAR(my_var, 400);
-  PROCESS_NEW_VALUE(pressure, my_var);
-
-  SET_OBSERVABLE_VAR(my_var, 600);
-  PROCESS_NEW_VALUE(pressure, my_var);
-
-  SET_OBSERVABLE_VAR(my_var, 590);
-  PROCESS_NEW_VALUE(pressure, my_var);
-
-  SET_OBSERVABLE_VAR(my_var, 720);
-  PROCESS_NEW_VALUE(pressure, my_var);
-
-  SET_OBSERVABLE_VAR(my_var, 620);
-  PROCESS_NEW_VALUE(pressure, my_var);
+  pressure.process(&pressure, 200);
+  pressure.process(&pressure, 400);
+  pressure.process(&pressure, 600);
+  pressure.process(&pressure, 590);
+  pressure.process(&pressure, 720);
+  pressure.process(&pressure, 620);
 
   // CLEANUP_OBSERVERS(pressure);
 }
@@ -75,11 +62,8 @@ void test_exp_m_avg(void) {
   FILTER_EXP_MOVING_AVERAGE(ema_pressure_filter, 0.8, true);
   ADD_FILTER(pressure_ema, ema_pressure_filter);
 
-  OBSERVABLE_NUMBER(ea_var, 0);
-
   for(size_t cnt = 0; cnt < (sizeof(test_values)/sizeof(test_values[0])); cnt++) {
-    SET_OBSERVABLE_VAR(ea_var, test_values[cnt]);
-    PROCESS_NEW_VALUE(pressure_ema, ea_var);
+    pressure_ema.process(&pressure_ema, test_values[cnt]);
   }
 
   printf("Result for EMA: %.4f\n", pressure_ema.value.value);
