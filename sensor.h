@@ -102,6 +102,7 @@ struct value_observer_item
 };
 
 typedef void (*set_value_fn)(observable_value_t *, observable_number_t);
+typedef void (*process_value_fn)(observable_value_t *, number_type);
 typedef void (*notify_observers_fn)(observable_value_t *);
 
 void add_observer(observable_value_t *ov, value_observer_cb observer_cb);
@@ -109,6 +110,7 @@ void remove_observer(observable_value_t *ov, value_observer_cb observer_cb);
 void cleanup_observers(observable_value_t *ov);
 void notify_observers(observable_value_t *ov);
 void set_value(observable_value_t *ov, observable_number_t new_value);
+void process_new_value(observable_value_t *ov, number_type new_value);
 
 struct observable_value
 {
@@ -119,6 +121,7 @@ struct observable_value
   filter_item_t *filters;
   value_observer_item_t *observers;
   set_value_fn set;
+  process_value_fn process;
   notify_observers_fn notify;
 };
 
@@ -141,11 +144,15 @@ struct observable_value
       .filters = NULL,                                                            \
       .observers = NULL,                                                          \
       .set = set_value,                                                           \
+      .process = process_new_value,                                               \
       .notify = notify_observers,                                                 \
   }
 
 #define PROCESS_NEW_VALUE(var_name, var_value) \
   var_name.set(&var_name, var_value)
+
+#define INGEST_NEW_VALUE(var_name, var_value) \
+  var_name.process(&var_name, var_value)
 
 #define SET_AND_PROCESS_NEW_VALUE(var_name, var_value, new_value) \
   var_value.value = new_value;                                    \

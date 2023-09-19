@@ -107,9 +107,9 @@ filter_ret_val_t filter_item_linear_fit_fn(filter_item_t *this, observable_numbe
 {
   filter_item_linear_fit_t *fi = (filter_item_linear_fit_t *)this;
   assert(fi->value_map[0][0] != fi->value_map[1][0]);
-  // // y1-y2/x1-x2
+  // y1-y2/x1-x2
   // float slope = (fi->value_map[0][1] - fi->value_map[1][1]) / (fi->value_map[0][0] - fi->value_map[1][0]);
-  // // y1 - slope*x1
+  // y1 - slope*x1
   // float intercept = fi->value_map[0][1] - slope * fi->value_map[0][0];
   var->value = fi->slope_ * var->value + fi->intercept_;
 
@@ -214,4 +214,11 @@ void set_value(observable_value_t *ov, observable_number_t new_value)
     ov->value = new_value;
     ov->notify(ov);
   }
+}
+
+void process_new_value(observable_value_t *ov, number_type new_value) {
+  observable_number_t value_ = {
+    .value = new_value
+  };
+  ov->set(ov, value_);
 }

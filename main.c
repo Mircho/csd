@@ -110,11 +110,8 @@ void test_avg(void) {
   FILTER_AVERAGE(a_pressure_filter, 3, false);
   ADD_FILTER(pressure_a, a_pressure_filter);
 
-  OBSERVABLE_NUMBER(a_var, 0);
-
   for(size_t cnt = 0; cnt < (sizeof(test_values)/sizeof(test_values[0])); cnt++) {
-    SET_OBSERVABLE_VAR(a_var, test_values[cnt]);
-    PROCESS_NEW_VALUE(pressure_a, a_var);
+    INGEST_NEW_VALUE(pressure_a, test_values[cnt]);
   }
 
   printf("Result for A: %.4f\n", pressure_a.value.value);
@@ -136,17 +133,13 @@ void test_linear_fit(void) {
   FILTER_CLAMP(a_pressure_filter_c, 0, 100);
   ADD_FILTER(pressure_lf, a_pressure_filter_c);
 
-
-  OBSERVABLE_NUMBER(a_var, 0);
-
-  SET_AND_PROCESS_NEW_VALUE(pressure_lf, a_var, 550);
+  INGEST_NEW_VALUE(pressure_lf, 550);
 
   printf("Result for A: %.4f\n", pressure_lf.value.value);
   const double expected_550 = 27.027027027027;
   assert(fabs(pressure_lf.value.value - expected_550) < 0.05);
 
-  SET_AND_PROCESS_NEW_VALUE(pressure_lf, a_var, 617);
-  PROCESS_NEW_VALUE(pressure_lf, a_var);
+  INGEST_NEW_VALUE(pressure_lf, 617);
 
   printf("Result for A: %.4f\n", pressure_lf.value.value);
   const double expected_617 = 63.2432432432432;

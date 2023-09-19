@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc -o test-variable-gilters *.c
+gcc -o test-variable-filters *.c
